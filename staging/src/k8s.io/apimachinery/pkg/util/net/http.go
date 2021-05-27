@@ -132,10 +132,10 @@ func SetTransportDefaults(t *http.Transport) *http.Transport {
 	t = SetOldTransportDefaults(t)
 	// Allow clients to disable http2 if needed.
 	if s := os.Getenv("DISABLE_HTTP2"); len(s) > 0 {
-		klog.Info("HTTP2 has been explicitly disabled")
+		klog.InfoS("HTTP2 has been explicitly disabled")
 	} else if allowsHTTP2(t) {
 		if err := configureHTTP2Transport(t); err != nil {
-			klog.Warningf("Transport failed http2 configuration: %v", err)
+			klog.InfoS("Transport failed http2 configuration", "err", err)
 		}
 	}
 	return t
@@ -148,8 +148,7 @@ func readIdleTimeoutSeconds() int {
 	if s := os.Getenv("HTTP2_READ_IDLE_TIMEOUT_SECONDS"); len(s) > 0 {
 		i, err := strconv.Atoi(s)
 		if err != nil {
-			klog.Warningf("Illegal HTTP2_READ_IDLE_TIMEOUT_SECONDS(%q): %v."+
-				" Default value %d is used", s, err, ret)
+			klog.InfoS("Illegal HTTP2_READ_IDLE_TIMEOUT_SECONDS and default value is used", "HTTP2_READ_IDLE_TIMEOUT_SECONDS", s, "err", err, "defaultReadIdleTimeoutSeconds", ret)
 			return ret
 		}
 		ret = i
@@ -162,8 +161,7 @@ func pingTimeoutSeconds() int {
 	if s := os.Getenv("HTTP2_PING_TIMEOUT_SECONDS"); len(s) > 0 {
 		i, err := strconv.Atoi(s)
 		if err != nil {
-			klog.Warningf("Illegal HTTP2_PING_TIMEOUT_SECONDS(%q): %v."+
-				" Default value %d is used", s, err, ret)
+			klog.InfoS("Illegal HTTP2_PING_TIMEOUT_SECONDS and default value is used", "HTTP2_PING_TIMEOUT_SECONDS", s, "err", err, "defaultPingTimeoutSeconds", ret)
 			return ret
 		}
 		ret = i
@@ -471,7 +469,7 @@ redirectLoop:
 		resp, err := http.ReadResponse(respReader, nil)
 		if err != nil {
 			// Unable to read the backend response; let the client handle it.
-			klog.Warningf("Error reading backend response: %v", err)
+			klog.InfoS("Error reading backend response", "err", err)
 			break redirectLoop
 		}
 
